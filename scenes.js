@@ -354,14 +354,14 @@ const SCENES = [
         "visual": "gate"
       },
       {
-        "text": "מה קורה בי מול הסליחה?",
+        "text": "מה אני מרגישה כשאני אומרת סליחה?",
         "seconds": 180,
         "title": "שער הסליחה",
         "chat": false,
         "visual": "gate"
       },
       {
-        "text": "רגע בלי להסביר.",
+        "text": "סליחה. בלי ״אבל״.",
         "seconds": 240,
         "title": "שער הסליחה",
         "chat": false,
