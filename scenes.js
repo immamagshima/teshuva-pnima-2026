@@ -44,7 +44,7 @@ const SCENES = [
       },
       {
         "title": "פנימה",
-        "text": "מה נשמע בתוכך?",
+        "text": "יחד, בשקט.\nמקשיבות פנימה.\nאיזה קול בתוכך את שומעת עכשיו?",
         "seconds": 240,
         "chat": false,
         "visual": "listen",
