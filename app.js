@@ -14,7 +14,9 @@ function paint(){let s=SCENES[state.i],p=current(),visual=state.ground?'horizon'
  $('mode').textContent=state.ground?'אפשר לעצור ולהיעזר':p.chat?'מילים בצ׳אט · הקשבה בינינו':visual==='word'?'מילה אחת. זמן להקשיב.':visual==='eyes'?'הביטי בנשים שנמצאות כאן':'יחד, בשקט';
  $('listeningPath').hidden=s.kind!=='listen'||state.ground; [...$('listeningPath').children].forEach((n,i)=>n.classList.toggle('active',i===p.ear));
  $('phaseClock').textContent=format(state.left); $('phaseTimeLabel').textContent=p.chat?'זמן לשיתוף בצ׳אט':s.kind==='listen'?'זמן להקשבה':'זמן לשהייה';
- $('noise').hidden=s.kind!=='noise';[...$('noise').children].forEach((n,i)=>n.classList.toggle('gone',i<state.noise));
+ const elapsed=Math.max(0,state.total-state.left); const words=p.floatWords||[]; const shown=state.ground?0:Math.min(words.length,Math.max(0,Math.floor((elapsed-(p.revealAfter||0))/(p.floatStep||5))+1));
+ const cloud=$('floatingWords'); cloud.hidden=!shown; if(cloud.dataset.phase!==state.i+':'+state.p){cloud.replaceChildren(); words.forEach(w=>{const n=document.createElement('span');n.textContent=w;cloud.append(n)});cloud.dataset.phase=state.i+':'+state.p} [...cloud.children].forEach((n,i)=>n.classList.toggle('surfaced',i<shown));
+ $('noise').hidden=visual!=='noise';[...$('noise').children].forEach((n,i)=>n.classList.toggle('gone',i<state.noise));
  [...$('wave').children].forEach((n,i)=>{const amp=Math.max(2,(Math.sin(i*1.7)*22+28)*(1-state.noise/4));n.style.height=amp+'px';n.style.opacity=String(1-state.noise*.15)});
  $('wall').hidden=visual!=='wall';if(visual==='wall')renderWall();
  $('stageAction').hidden=!['noise','gate','wall','music'].includes(visual);$('stageAction').textContent=visual==='noise'?(state.noise>=4?'הרעש נחלש. להקשיב.':'להנמיך עוד שכבה'):visual==='gate'?(state.gate?'להישאר עם הפתח':'לפנות מקום'):visual==='wall'?'איסוף והעתקת השורות':($('songAudio').paused?'להשמיע את שיר הסיום':'להשהות את השיר');
