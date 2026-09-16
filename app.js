@@ -1,4 +1,4 @@
-const $=id=>document.getElementById(id),KEY='teshuva-shared-quiet-120-v1',LINES='teshuva-song-lines-v1';
+const $=id=>document.getElementById(id),KEY='teshuva-shared-quiet-90-v2',LINES='teshuva-song-lines-v1';
 let state={i:0,p:0,left:120,total:120,running:false,deadline:0,auto:false,quiet:false,ground:false,gate:false,noise:0},lines=[],draft=[],trackURL=null;
 try{const old=JSON.parse(localStorage.getItem(KEY));if(old&&SCENES[old.i]?.phases[old.p])state={...state,...old,running:false,deadline:0,quiet:false};const saved=JSON.parse(localStorage.getItem(LINES)||'[]');if(Array.isArray(saved))lines=saved.filter(x=>typeof x==='string')}catch(e){}
 const beats=SCENES.flatMap((s,i)=>s.phases.map((p,j)=>[i,j]));
@@ -9,7 +9,7 @@ function current(){return SCENES[state.i].phases[state.p]}
 function renderWall(){const wall=$('wall');wall.replaceChildren();if(!lines.length){let p=document.createElement('p');p.className='empty';p.textContent='כאן יופיעו השורות שתבחרו לתת לשיר.';wall.append(p)}else lines.forEach(t=>{const p=document.createElement('p');p.textContent=t;wall.append(p)})}
 function paint(){let s=SCENES[state.i],p=current(),visual=state.ground?'horizon':p.visual;
  document.body.dataset.visual=visual;document.body.classList.toggle('quiet-mode',state.quiet);document.body.classList.toggle('grounded',state.ground);document.body.classList.toggle('gate-open',state.gate);
- $('title').textContent=state.ground?'חוזרות לכאן':p.title;
+ if(!p.morph||state.ground)$('title').textContent=state.ground?'חוזרות לכאן':p.title;
  $('instruction').textContent=state.ground?'הביטי בחדר. הרגישי את הרגליים על הרצפה.\nאפשר לנוע, לשתות או לבקש קשר.':p.text;
  $('mode').textContent=state.ground?'אפשר לעצור ולהיעזר':p.chat?'מילים בצ׳אט · הקשבה בינינו':visual==='word'?'מילה אחת. זמן להקשיב.':visual==='eyes'?'הביטי בנשים שנמצאות כאן':'יחד, בשקט';
  $('listeningPath').hidden=s.kind!=='listen'||state.ground; [...$('listeningPath').children].forEach((n,i)=>n.classList.toggle('active',i===p.ear));
@@ -29,6 +29,7 @@ function paint(){let s=SCENES[state.i],p=current(),visual=state.ground?'horizon'
  $('auto').checked=state.auto;$('ground').textContent=state.ground?'לחזור לרגע הקודם':'חזרה לקרקע';$('returnControls').hidden=!state.quiet;$('quiet').setAttribute('aria-pressed',String(state.quiet));
  const b=beats.findIndex(([i,j])=>i===state.i&&j===state.p);$('back').disabled=b===0;$('next').disabled=b===beats.length-1;$('next').textContent=b===beats.length-1?'המפגש הושלם':state.p===s.phases.length-1?'למרחב הבא ←':'הפעימה הבאה ←';
  [...$('map').children].forEach((n,i)=>n.setAttribute('aria-current',String(i===state.i)));
+ window.updateQuietMotion?.();
 }
 function change(i,p=0){const next=SCENES[i]?.phases[p];if(!next)return;pauseMusic();state={...state,i,p,left:next.seconds,total:next.seconds,running:false,deadline:0,ground:false,gate:false,noise:0};paint();save();window.scrollTo({top:0,behavior:'instant'})}
 function move(d){const b=beats.findIndex(([i,j])=>i===state.i&&j===state.p);const n=beats[b+d];if(n)change(...n)}
