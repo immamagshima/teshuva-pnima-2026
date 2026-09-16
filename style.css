@@ -14,3 +14,11 @@ body[data-visual=noise] .wave{top:2%;bottom:auto;height:50px}
 .floating-words{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:18px 30px;max-width:720px;margin:22px auto 30px}.floating-words span{font-size:clamp(23px,2.6vw,36px);color:#705026;opacity:0;transform:translateY(20px);transition:opacity 3s ease,transform 4s ease}.floating-words span.surfaced{opacity:1;transform:translateY(0)}.floating-words span:nth-child(3n+2){color:#5b6145}.floating-words span:nth-child(3n){font-size:clamp(27px,3vw,42px)}@media(prefers-reduced-motion:reduce){.floating-words span{transition:none;transform:none}}
 
 .chat-invitation{font-size:17px;color:#6d5131;margin:24px auto 0;max-width:32em}.instruction:empty{display:none}
+/* Silent, asynchronous motion: visual listening only, no microphone input. */
+body[data-visual=listen] main,body[data-visual=noise] main{padding-top:100px}
+body[data-visual=listen] .wave,body[data-visual=noise] .wave{display:flex;top:18px;bottom:auto;height:50px;left:12%;right:12%;gap:6px}
+.wave i{transform-origin:center;animation:quiet-wave var(--wave-time,4s) ease-in-out var(--wave-delay,0s) infinite;will-change:transform}
+@keyframes quiet-wave{0%,100%{transform:scaleY(.3)}23%{transform:scaleY(.85)}47%{transform:scaleY(.48)}72%{transform:scaleY(1.12)}}
+.wave-paused .wave i{animation-play-state:paused}
+@media(max-width:760px){body[data-visual=listen] main,body[data-visual=noise] main{padding-top:94px}.wave i{flex-shrink:1}body[data-visual=listen] .wave,body[data-visual=noise] .wave{left:8%;right:8%;gap:4px}}
+@media(prefers-reduced-motion:reduce){.wave i{animation:none;transform:scaleY(.55);will-change:auto}}

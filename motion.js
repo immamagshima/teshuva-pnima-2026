@@ -1,0 +1,5 @@
+(()=>{const reduce=matchMedia('(prefers-reduced-motion: reduce)');let enabled=true;try{enabled=localStorage.getItem('teshuva-wave-motion')!=='off'}catch{}
+const bars=document.querySelectorAll('#wave i');bars.forEach((bar,i)=>{bar.style.setProperty('--wave-time',(3.1+(i*17%23)/10)+'s');bar.style.setProperty('--wave-delay',(-i*.37)+'s')});
+const label=document.createElement('label');label.className='check';const input=document.createElement('input');input.type='checkbox';input.id='waveMotion';const text=document.createElement('span');label.append(input,text);document.getElementById('tools').insertBefore(label,document.getElementById('tools').querySelector('details'));
+function apply(){input.checked=enabled&&!reduce.matches;input.disabled=reduce.matches;text.textContent=reduce.matches?'תנועה מצומצמת לפי הגדרות המכשיר':'תנועה עדינה בגל ההקשבה';document.body.classList.toggle('wave-paused',!enabled||reduce.matches)}
+input.onchange=()=>{enabled=input.checked;try{localStorage.setItem('teshuva-wave-motion',enabled?'on':'off')}catch{}apply()};reduce.addEventListener('change',apply);apply();})();
