@@ -1,7 +1,7 @@
 (()=>{const reduce=matchMedia('(prefers-reduced-motion: reduce)');let enabled=true;try{enabled=localStorage.getItem('teshuva-wave-motion')!=='off'}catch{}
 const bars=document.querySelectorAll('#wave i');bars.forEach((bar,i)=>{bar.style.setProperty('--wave-time',(3.1+(i*17%23)/10)+'s');bar.style.setProperty('--wave-delay',(-i*.37)+'s')});
 const label=document.createElement('label');label.className='check';const input=document.createElement('input');input.type='checkbox';input.id='waveMotion';const text=document.createElement('span');label.append(input,text);document.getElementById('tools').insertBefore(label,document.getElementById('tools').querySelector('details'));
-function apply(){input.checked=enabled&&!reduce.matches;input.disabled=reduce.matches;text.textContent=reduce.matches?'תנועה מצומצמת לפי הגדרות המכשיר':'תנועה עדינה בגל ההקשבה';document.body.classList.toggle('wave-paused',!enabled||reduce.matches)}
+function apply(){input.checked=enabled&&!reduce.matches;input.disabled=reduce.matches;text.textContent=reduce.matches?'תנועה מצומצמת לפי הגדרות המכשיר':'תנועה עדינה במרחב';document.body.classList.toggle('wave-paused',!enabled||reduce.matches)}
 input.onchange=()=>{enabled=input.checked;try{localStorage.setItem('teshuva-wave-motion',enabled?'on':'off')}catch{}apply()};reduce.addEventListener('change',apply);apply();})();
 (()=>{
 const title=document.getElementById('title'), panel=document.createElement('div');panel.className='living-echo';panel.setAttribute('aria-hidden','true');document.getElementById('instruction').after(panel);
@@ -15,7 +15,7 @@ const drawings=[
 window.updateQuietMotion=()=>{
  const p=current(),e=Math.max(0,state.total-state.left),id=state.i+':'+state.p;
  if(key!==id){key=id;lastWord='';lastEcho='';panel.replaceChildren();title.removeAttribute('aria-label');title.classList.remove('letter-word')}
- panel.hidden=state.ground;document.body.classList.toggle('motion-resting',!state.running);
+ panel.hidden=state.ground;panel.classList.toggle('has-echo-space',!!(p.voices||p.linePortrait));document.body.classList.toggle('motion-resting',!state.running);
  if(p.morph&&!state.ground){
  const t=Math.max(0,e-p.morphAfter),index=e<p.morphAfter?0:Math.floor(t/32)%p.morph.length,word=p.morph[index];
  if(word!==lastWord){title.replaceChildren();title.classList.add('letter-word');title.setAttribute('aria-label',word);[...word].forEach((c,i)=>{const n=document.createElement('span');n.textContent=c;n.setAttribute('aria-hidden','true');n.style.setProperty('--letter-x',((i%2?1:-1)*(18+i*9))+'px');n.style.setProperty('--letter-y',(i%2?20:-20)+'px');title.append(n)});lastWord=word}

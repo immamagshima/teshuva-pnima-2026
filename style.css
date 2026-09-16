@@ -29,3 +29,6 @@ body[data-visual=listen] .wave,body[data-visual=noise] .wave{display:flex;top:18
 .motion-resting .letter-word span,.motion-resting .living-echo>*{animation:none}
 
 nav{position:relative;bottom:auto;margin-top:8px}
+
+/* Keep the field steady while an echo comes and goes. */
+.living-echo.has-echo-space:empty{display:flex}.quiet-mode .phase-time,.quiet-mode .holding{visibility:hidden}.quiet-mode .mode{opacity:.65}
