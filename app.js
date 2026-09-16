@@ -1,5 +1,5 @@
-const $=id=>document.getElementById(id),KEY='teshuva-shared-v3',LINES='teshuva-song-lines-v1';
-let state={i:0,p:0,left:180,total:180,running:false,deadline:0,auto:false,quiet:false,ground:false,gate:false,noise:0},lines=[],draft=[],trackURL=null;
+const $=id=>document.getElementById(id),KEY='teshuva-shared-quiet-120-v1',LINES='teshuva-song-lines-v1';
+let state={i:0,p:0,left:120,total:120,running:false,deadline:0,auto:false,quiet:false,ground:false,gate:false,noise:0},lines=[],draft=[],trackURL=null;
 try{const old=JSON.parse(localStorage.getItem(KEY));if(old&&SCENES[old.i]?.phases[old.p])state={...state,...old,running:false,deadline:0,quiet:false};const saved=JSON.parse(localStorage.getItem(LINES)||'[]');if(Array.isArray(saved))lines=saved.filter(x=>typeof x==='string')}catch(e){}
 const beats=SCENES.flatMap((s,i)=>s.phases.map((p,j)=>[i,j]));
 function save(){try{localStorage.setItem(KEY,JSON.stringify({...state,running:false,deadline:0,quiet:false}));localStorage.setItem(LINES,JSON.stringify(lines))}catch(e){toast('השמירה בדפדפן אינה זמינה. אפשר להוריד את השורות לקובץ.')}}
@@ -14,8 +14,9 @@ function paint(){let s=SCENES[state.i],p=current(),visual=state.ground?'horizon'
  $('mode').textContent=state.ground?'אפשר לעצור ולהיעזר':p.chat?'מילים בצ׳אט · הקשבה בינינו':visual==='word'?'מילה אחת. זמן להקשיב.':visual==='eyes'?'הביטי בנשים שנמצאות כאן':'יחד, בשקט';
  $('listeningPath').hidden=s.kind!=='listen'||state.ground; [...$('listeningPath').children].forEach((n,i)=>n.classList.toggle('active',i===p.ear));
  $('phaseClock').textContent=format(state.left); $('phaseTimeLabel').textContent=p.chat?'זמן לשיתוף בצ׳אט':s.kind==='listen'?'זמן להקשבה':'זמן לשהייה';
- const elapsed=Math.max(0,state.total-state.left); const words=p.floatWords||[]; const shown=state.ground?0:Math.min(words.length,Math.max(0,Math.floor((elapsed-(p.revealAfter||0))/(p.floatStep||5))+1));
- const cloud=$('floatingWords'); cloud.hidden=!shown; if(cloud.dataset.phase!==state.i+':'+state.p){cloud.replaceChildren(); words.forEach(w=>{const n=document.createElement('span');n.textContent=w;cloud.append(n)});cloud.dataset.phase=state.i+':'+state.p} [...cloud.children].forEach((n,i)=>n.classList.toggle('surfaced',i<shown));
+ const elapsed=Math.max(0,state.total-state.left); const words=p.floatWords||[]; const shown=state.ground||(p.hideAfter&&elapsed>=p.hideAfter)?0:Math.min(words.length,Math.max(0,Math.floor((elapsed-(p.revealAfter||0))/(p.floatStep||5))+1));
+ const cloud=$('floatingWords'); cloud.hidden=!words.length||elapsed<(p.revealAfter||0)||!!(p.hideAfter&&elapsed>=p.hideAfter+4)||state.ground; if(cloud.dataset.phase!==state.i+':'+state.p){cloud.replaceChildren(); words.forEach(w=>{const n=document.createElement('span');n.textContent=w;cloud.append(n)});cloud.dataset.phase=state.i+':'+state.p} [...cloud.children].forEach((n,i)=>n.classList.toggle('surfaced',i<shown));
+ $('chatInvitation').hidden=state.ground||p.chatAfter===undefined||elapsed<p.chatAfter;
  $('noise').hidden=visual!=='noise';[...$('noise').children].forEach((n,i)=>n.classList.toggle('gone',i<state.noise));
  [...$('wave').children].forEach((n,i)=>{const amp=Math.max(2,(Math.sin(i*1.7)*22+28)*(1-state.noise/4));n.style.height=amp+'px';n.style.opacity=String(1-state.noise*.15)});
  $('wall').hidden=visual!=='wall';if(visual==='wall')renderWall();
@@ -43,7 +44,7 @@ $('auto').onchange=e=>{state.auto=e.target.checked;save()};
 $('ground').onclick=()=>{state.ground=!state.ground;state.running=false;pauseMusic();$('tools').close();paint();save()};
 $('full').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();$('tools').close()}catch(e){toast('אפשר לעבור למסך מלא דרך הדפדפן')}};
 function openCollector(){state.running=false;paint();save();if($('tools').open)$('tools').close();$('collector').showModal();$('collectionStatus').textContent=lines.length+' שורות שמורות לשיר'}
-$('collect').onclick=openCollector;$('viewWall').onclick=()=>{change(16,0);$('tools').close()};
+$('collect').onclick=openCollector;$('viewWall').onclick=()=>{change(SCENES.findIndex(s=>s.phases.some(p=>p.visual==='wall')),0);$('tools').close()};
 $('stageAction').onclick=()=>{const v=document.body.dataset.visual;if(v==='noise'){state.noise=Math.min(4,state.noise+1);paint();save()}if(v==='gate'){state.gate=!state.gate;paint();save()}if(v==='wall')openCollector();if(v==='music'){if(trackURL){if($('songAudio').paused)$('songAudio').play().catch(()=>toast('לחצי על נגן השיר כדי להתחיל'));else $('songAudio').pause()}else{$('tools').showModal();$('songSettings').open=true;toast('בחרי את קובץ השיר המוכן בכלי המפגש')}}};
 function review(){const container=$('review');container.replaceChildren();draft.forEach((text,i)=>{const row=document.createElement('div');row.className='review-row';const area=document.createElement('textarea');area.value=text;area.setAttribute('aria-label','שורה '+(i+1)+' לשיר');area.oninput=()=>{draft[i]=area.value;$('approve').disabled=!draft.some(t=>t.trim())};const remove=document.createElement('button');remove.textContent='להסיר';remove.onclick=()=>{draft.splice(i,1);review()};row.append(area,remove);container.append(row)});$('approve').disabled=!draft.some(t=>t.trim())}
 $('parse').onclick=()=>{draft=[];for(const line of $('chatInput').value.split(/\r?\n/)){const m=line.match(/(?:^|\s)לשיר\s*[:：]\s*(.+)$/u);if(m&&m[1].trim())draft.push(m[1].trim())}review();$('parseStatus').textContent=draft.length?'נמצאו '+draft.length+' שורות מסומנות. בדקי וערכי לפני ההוספה.':'לא נמצאו שורות עם הסימון לשיר:. לא הוספנו שיתוף רגיל.'};
