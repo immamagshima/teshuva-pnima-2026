@@ -12,6 +12,8 @@ function paint(){let s=SCENES[state.i],p=current(),visual=state.ground?'horizon'
  $('title').textContent=state.ground?'חוזרות לכאן':p.title;
  $('instruction').textContent=state.ground?'הביטי בחדר. הרגישי את הרגליים על הרצפה.\nאפשר לנוע, לשתות או לבקש קשר.':p.text;
  $('mode').textContent=state.ground?'אפשר לעצור ולהיעזר':p.chat?'מילים בצ׳אט · הקשבה בינינו':visual==='word'?'מילה אחת. זמן להקשיב.':visual==='eyes'?'הביטי בנשים שנמצאות כאן':'יחד, בשקט';
+ $('listeningPath').hidden=s.kind!=='listen'||state.ground; [...$('listeningPath').children].forEach((n,i)=>n.classList.toggle('active',i===p.ear));
+ $('phaseClock').textContent=format(state.left); $('phaseTimeLabel').textContent=p.chat?'זמן לשיתוף בצ׳אט':s.kind==='listen'?'זמן להקשבה':'זמן לשהייה';
  $('noise').hidden=s.kind!=='noise';[...$('noise').children].forEach((n,i)=>n.classList.toggle('gone',i<state.noise));
  [...$('wave').children].forEach((n,i)=>{const amp=Math.max(2,(Math.sin(i*1.7)*22+28)*(1-state.noise/4));n.style.height=amp+'px';n.style.opacity=String(1-state.noise*.15)});
  $('wall').hidden=visual!=='wall';if(visual==='wall')renderWall();
