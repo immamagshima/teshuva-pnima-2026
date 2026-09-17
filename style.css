@@ -32,3 +32,15 @@ nav{position:relative;bottom:auto;margin-top:8px}
 
 /* Keep the field steady while an echo comes and goes. */
 .living-echo.has-echo-space:empty{display:flex}.quiet-mode .phase-time,.quiet-mode .holding{visibility:hidden}.quiet-mode .mode{opacity:.65}
+
+/* Listening has a visible source; the waveform carries silence, not microphone input. */
+body[data-visual=listen] .wave{display:flex;position:relative;inset:auto;width:min(440px,78vw);height:48px;margin:0 auto 24px;gap:5px}
+body[data-visual=listen] .visual>.wave{display:none}
+.listening-path{gap:clamp(14px,4vw,50px)}.listening-path>div{flex-direction:column;font-size:18px;opacity:.45;transition:opacity 2s,color 2s}.listening-path svg{width:58px;height:74px}.listening-path>div.active{opacity:1;color:#614321}.listening-path>div.active svg{filter:drop-shadow(0 0 14px #fff4c4);stroke-width:3px}
+body[data-visual=listen] .moment:before{content:'מקשיבות לשקט';display:block;font-size:16px;color:#755536;letter-spacing:.06em;margin:0 0 18px}
+.wall{gap:22px;align-items:start;grid-template-columns:repeat(3,minmax(0,1fr))}.wall p:not(.empty){background:linear-gradient(135deg,#fff9e7c9,#e5cfad99);border:1px solid #ab844332;border-radius:45% 16% 37% 12% / 12% 20% 15% 18%;padding:30px 24px;box-shadow:0 8px 28px #7c563511;animation:forgiveness-arrive 2.4s both;animation-delay:var(--arrival,0s);font-size:clamp(22px,2.1vw,30px)}.wall p:nth-child(3n+2){background:linear-gradient(135deg,#f6e1d8ba,#fbefd1b5)}.wall p:nth-child(3n){background:linear-gradient(135deg,#e1e2cabb,#faf0d4c9)}
+@keyframes forgiveness-arrive{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.wave-paused .wall p,.motion-resting .wall p{animation:none}.wall p{min-width:0}body[data-visual=wall] .moment{max-width:1180px}
+@media(max-width:900px){.wall{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.wall{grid-template-columns:1fr}.listening-path svg{width:45px;height:58px}.listening-path>div{font-size:16px}.wall p:not(.empty){padding:24px 20px}}
+@media(prefers-reduced-motion:reduce){.wall p{animation:none!important}}

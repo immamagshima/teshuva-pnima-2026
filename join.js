@@ -1,0 +1,10 @@
+const API='https://teshuva-pnima-keren-2026.immamagshima.chatgpt.site';
+const params=new URLSearchParams(location.hash.slice(1));const room=params.get('room'),key=params.get('key');const $=id=>document.getElementById(id);const storageKey='teshuva-submit-'+room;let draft={},ready=false;
+try{draft=JSON.parse(localStorage.getItem(storageKey)||'{}')}catch{}
+if(!draft.requestId)draft.requestId=crypto.randomUUID();$('songLine').value=draft.text||'סליחה…';
+function save(){try{localStorage.setItem(storageKey,JSON.stringify(draft))}catch{}}
+$('songLine').oninput=()=>{draft.text=$('songLine').value;save()};
+function sent(){ready=false;document.querySelector('.join-intro').hidden=true;$('songForm').hidden=true;$('joinStatus').textContent='השורה שלך הגיעה.\nתודה שנתת לה מקום.\nאפשר לחזור למפגש.'}
+async function request(path,options={}){const r=await fetch(API+'/api/rooms/'+encodeURIComponent(room)+path,{...options,headers:{Authorization:'Bearer '+key,'Content-Type':'application/json'}});const data=await r.json();if(!r.ok)throw Error(data.error||'לא הצלחנו להתחבר. נסי שוב.');return data}
+async function init(){if(!room||!key){$('joinStatus').textContent='כדי לשלוח שורה, פתחי את הקישור שקרן שיתפה במפגש.';return}if(draft.sent){sent();return}try{const data=await request('/info');if(data.closed){$('joinStatus').textContent='איסוף השורות הסתיים. תודה שאת כאן.';return}ready=true;$('sendLine').disabled=false;$('joinStatus').textContent=''}catch(e){$('joinStatus').textContent=e.message}}
+$('songForm').onsubmit=async e=>{e.preventDefault();if(!ready)return;const text=$('songLine').value.trim();if(!text||text==='סליחה…'){ $('joinStatus').textContent='הוסיפי את המילים שלך אחרי ״סליחה…״.';return}if(!$('consent').checked||!$('consentEdit').checked)return;draft.text=text;save();$('sendLine').disabled=true;$('joinStatus').textContent='השורה בדרך…';try{await request('/submit',{method:'POST',body:JSON.stringify({text,consent:true,consentEdit:true,consentVersion:2,requestId:draft.requestId})});draft.sent=true;save();sent()}catch(e){$('joinStatus').textContent=e.message;$('sendLine').disabled=false}};init();

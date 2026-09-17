@@ -22,7 +22,9 @@ window.updateQuietMotion=()=>{
  title.classList.toggle('letters-apart',e>=p.morphAfter&&t%32>26);
  }
  let echo='';if(p.voices&&e>=p.voiceAfter&&e<p.voiceUntil){const t=e-p.voiceAfter;if(t%16<12)echo=p.voices[Math.floor(t/16)%p.voices.length]}
- let art=-1;if(p.linePortrait&&e>=45&&e<255){const t=e-45;if(t%40<30)art=Math.floor(t/40)%drawings.length}
+ let art=-1;if(p.linePortrait&&e>=45&&e<145){const t=e-45;if(t%40<30)art=Math.floor(t/40)%drawings.length}
  const next=echo||String(art);if(next!==lastEcho){panel.replaceChildren();if(echo){const n=document.createElement('span');n.textContent=echo;panel.append(n)}else if(art>=0){const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 180 180');const path=document.createElementNS(svg.namespaceURI,'path');path.setAttribute('d',drawings[art]);svg.append(path);panel.append(svg)}lastEcho=next}
 };window.updateQuietMotion();
 })();
+
+(()=>{const wave=document.getElementById('wave').cloneNode(true);wave.removeAttribute('id');wave.setAttribute('aria-hidden','true');document.getElementById('listeningPath').after(wave)})();
