@@ -44,3 +44,5 @@ body[data-visual=listen] .moment:before{content:'מקשיבות לשקט';displa
 @media(max-width:900px){.wall{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.wall{grid-template-columns:1fr}.listening-path svg{width:45px;height:58px}.listening-path>div{font-size:16px}.wall p:not(.empty){padding:24px 20px}}
 @media(prefers-reduced-motion:reduce){.wall p{animation:none!important}}
+
+body[data-visual=listen] main{padding-top:24px;padding-bottom:24px}body[data-visual=listen] .moment:before{display:none}body[data-visual=listen] .wave{height:34px;margin-bottom:16px}body[data-visual=listen] .instruction{font-size:clamp(24px,2.3vw,34px);line-height:1.45;margin-bottom:18px}body[data-visual=listen] .mode{margin-bottom:12px}

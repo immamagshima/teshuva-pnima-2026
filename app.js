@@ -13,7 +13,7 @@ function paint(){let s=SCENES[state.i],p=current(),visual=state.ground?'horizon'
  document.body.dataset.visual=visual;document.body.classList.toggle('quiet-mode',state.quiet);document.body.classList.toggle('grounded',state.ground);document.body.classList.toggle('gate-open',state.gate);
  if(!p.morph||state.ground)$('title').textContent=state.ground?'חוזרות לכאן':p.title;
  $('instruction').textContent=state.ground?'הביטי בחדר. הרגישי את הרגליים על הרצפה.\nאפשר לנוע, לשתות או לבקש קשר.':p.text;
- $('mode').textContent=state.ground?'אפשר לעצור ולהיעזר':p.chat?'מילים בצ׳אט · הקשבה בינינו':visual==='word'?'מילה אחת. זמן להקשיב.':visual==='eyes'?'הביטי בנשים שנמצאות כאן':'יחד, בשקט';
+ $('mode').textContent=state.ground?'אפשר לעצור ולהיעזר':visual==='listen'?'מקשיבות לשקט':p.chat?'מילים בצ׳אט · הקשבה בינינו':visual==='word'?'מילה אחת. זמן להקשיב.':visual==='eyes'?'הביטי בנשים שנמצאות כאן':'יחד, בשקט';
  $('listeningPath').hidden=s.kind!=='listen'||state.ground; [...$('listeningPath').children].forEach((n,i)=>n.classList.toggle('active',i===p.ear));
  $('phaseClock').textContent=format(state.left); $('phaseTimeLabel').textContent=p.chat?'זמן לשיתוף בצ׳אט':s.kind==='listen'?'זמן להקשבה':'זמן לשהייה';
  const elapsed=Math.max(0,state.total-state.left); const words=p.floatWords||[]; const shown=state.ground||(p.hideAfter&&elapsed>=p.hideAfter)?0:Math.min(words.length,Math.max(0,Math.floor((elapsed-(p.revealAfter||0))/(p.floatStep||5))+1));
