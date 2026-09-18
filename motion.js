@@ -79,7 +79,7 @@ window.updateQuietMotion=()=>{
  }
  const prior=window.updateQuietMotion;window.updateQuietMotion=()=>{sync();prior();sync()};
  function frame(){if(active()){
- const t=paused?hold:elapsed()+bias;const lengths=[24,36,28,44,32],sum=164;let local=((t%sum)+sum)%sum,k=0;while(local>=lengths[k])local-=lengths[k++];const u=local/lengths[k];
+ const t=paused?hold:elapsed()+bias;const pace=Math.min(1,state.total/((current().letterForms?.length||1)*32.8)),lengths=[24,36,28,44,32].map(x=>x*pace),sum=164*pace;let local=((t%sum)+sum)%sum,k=0;while(local>=lengths[k])local-=lengths[k++];const u=local/lengths[k];
  // Hold whole, open slowly, then gather fully. Every cycle has its own path.
  const amp=u<.12||u>.92?0:Math.pow(Math.sin(Math.PI*(u-.12)/.8),2);
  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches||document.body.classList.contains('wave-paused');
@@ -90,7 +90,7 @@ window.updateQuietMotion=()=>{
  if(k===2){x=-c*unit*.42;y=c*unit*.46;r=c*4}
  if(k===3){x=Math.sin(i*1.9)*unit*.6;y=(i%2?1:-1)*unit;r=(i%2?1:-1)*5}
  if(k===4){x=-c*unit*.7;y=Math.cos(i*1.3)*unit*.45}
- const ax=a[i]?.x??base[i].x,bx=b[i]?.x??base[i].x,shift=ax+(bx-ax)*blend-base[i].x,visibility=(a[i]?1:0)*(1-blend)+(b[i]?1:0)*blend;el.textContent=reduced?[...word][i]:(blend>.5?(b[i]?.c??[...word][i]):(a[i]?.c??[...word][i]));el.style.transform=reduced?'none':`translate(${shift+x*amp}px,${y*amp}px) rotate(${r*amp}deg)`;el.style.opacity=String(reduced?1:visibility*(1-amp*.25));el.style.filter=reduced?'none':`blur(${amp*.45}px)`;
+ const ax=a[i]?.x??base[i].x,bx=b[i]?.x??base[i].x,shift=ax+(bx-ax)*blend-base[i].x,visibility=(a[i]?1:0)*(1-blend)+(b[i]?1:0)*blend;el.textContent=reduced?[...word][i]:(blend>.5?(b[i]?.c??[...word][i]):(a[i]?.c??[...word][i]));el.style.transform=reduced?'none':`translate(${shift+x*amp}px,${y*amp}px) rotate(${r*amp}deg)`;el.style.opacity=String(reduced?1:(.075+.925*visibility)*(1-amp*.25));el.style.filter=reduced?'none':`blur(${amp*.45}px)`;
  });}requestAnimationFrame(frame)}sync();requestAnimationFrame(frame);
 })();
 
