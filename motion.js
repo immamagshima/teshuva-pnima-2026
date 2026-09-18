@@ -69,15 +69,11 @@ window.updateQuietMotion=()=>{
  motion.onclick=()=>{if(!state.running){start();paused=false}else if(paused){bias=hold-elapsed();paused=false}else{hold=elapsed()+bias;paused=true}sync()};
  variation.onclick=()=>{bias+=40;paused=false;start();sync()};
  thought.onclick=()=>{if(window.thoughtsLive){window.thoughtsLive=null}else{window.thoughtsLive={start:Math.max(0,state.total-state.left)-8};start()}paint()};
- const anchors=[
- ['לקראת יום כיפור, רציתי שנעצור יחד.\nלהקשיב למה שעוד לא הצלחנו לומר.','ביום הזה אני רוצה לפנות מקום\nלמה שנשאר ביני לבין עצמי.','נהיה כאן בשקט.\nהמילים שעל המסך ילוו אותנו.','אולי יעלה אדם. אולי רגע.\nאפשר לתת להם להיות כאן.','אנחנו יחד.\nכל אחת עם מה שחי בה עכשיו.'],
- ['המיקרופונים סגורים.\nאפשר להניח מילה בצ׳אט, אם נכון לך.','בהתחלה נקשיב למה שסביבנו.','אחר כך נקשיב למה שעולה בתוכנו.','אין צורך למצוא תשובה.\nגם כשלא עולה דבר, יש לך מקום.','השקט נבנה לאט.\nאפשר להתרגל אליו בקצב שלך.'],
- ['אפשר לנוח, לנוע או לצאת לרגע.','אם קשה לך, אפשר לכתוב לקרן\nבפרטי בצ׳אט של הזום.','אין חובה לסלוח.\nגם מה שעוד כואב יכול להיות כאן.','אפשר להיות כאן בדיוק כפי שאת.','עוד רגע נתחיל להקשיב.']
- ];
+ const anchors=[['לקראת יום כיפור, רציתי שנעצור יחד.\nלהקשיב למה שעוד לא הצלחנו לומר.','ביום הזה אני רוצה לפנות מקום\nלמה שנשאר ביני לבין עצמי.','נהיה כאן בשקט.\nהמילים שעל המסך ילוו אותנו.','אולי יעלה אדם. אולי רגע.\nאפשר לתת להם להיות כאן.','אנחנו יחד.\nכל אחת עם מה שחי בה עכשיו.']];
  function sync(){const id=state.i+':'+state.p;if(key!==id){key=id;paused=false;bias=0;word='';anchor=-1;window.thoughtsLive=null}
  const yes=active();motion.hidden=variation.hidden=!yes;thought.hidden=!current().voices||state.ground;controls.hidden=!yes&&thought.hidden;
  motion.textContent=paused?'להמשיך את התנועה':state.running?'להניח למילה לנוח':'להתחיל שהייה ותנועה';motion.setAttribute('aria-pressed',String(!paused&&state.running));thought.textContent=window.thoughtsLive?'להחזיר שקט למסך':'להציף מחשבות';thought.setAttribute('aria-pressed',String(!!window.thoughtsLive));
- if(state.i===0&&!state.ground){const list=anchors[state.p],i=Math.min(list.length-1,Math.floor(elapsed()/25));instruction.textContent=list[i];if(anchor!==i){anchor=i;instruction.getAnimations().forEach(a=>a.cancel());if(!matchMedia('(prefers-reduced-motion: reduce)').matches)instruction.animate([{opacity:.1},{opacity:1}],{duration:1800,easing:'ease-out'})}}
+ if(!state.ground&&((state.i===0&&state.p===0)||current().guides)){const list=current().guides||anchors[0],i=Math.min(list.length-1,Math.floor(elapsed()/(current().guides?30:25)));instruction.textContent=list[i];if(anchor!==i){anchor=i;instruction.getAnimations().forEach(a=>a.cancel());if(!matchMedia('(prefers-reduced-motion: reduce)').matches)instruction.animate([{opacity:.1,transform:'translateY(10px)'},{opacity:1,transform:'translateY(0)'}],{duration:1800,easing:'ease-out'})}}
  if(yes&&(word!==current().title||!title.classList.contains('letter-word')||!title.children.length)){word=current().title;title.replaceChildren();title.classList.add('letter-word','continuous-word');title.classList.remove('letters-apart');title.setAttribute('aria-label',word);[...word].forEach(c=>{const n=document.createElement('span');n.textContent=c;n.setAttribute('aria-hidden','true');title.append(n)})}
  if(!yes){title.classList.remove('continuous-word');word=''}
  }
