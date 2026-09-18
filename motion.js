@@ -83,13 +83,13 @@ window.updateQuietMotion=()=>{
  // Hold whole, open slowly, then gather fully. Every cycle has its own path.
  const amp=u<.12||u>.92?0:Math.pow(Math.sin(Math.PI*(u-.12)/.8),2);
  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches||document.body.classList.contains('wave-paused');
- const nodes=[...title.children],unit=Math.min(38,innerWidth*.045),n=nodes.length;
+ const nodes=[...title.children],forms=current().letterForms||[word],ordinal=Math.floor(t/sum)*5+k,from=ordinal===0?word:forms[(ordinal-1)%forms.length],to=forms[ordinal%forms.length];const norm=c=>({'ם':'מ','ן':'נ','ך':'כ','ף':'פ','ץ':'צ'}[c]||c);function layout(text){const used=new Set(),letters=[...text],indices=letters.map(c=>{const at=[...word].findIndex((v,j)=>!used.has(j)&&norm(v)===norm(c));used.add(at);return at}),gap=parseFloat(getComputedStyle(title).gap)||0,widths=indices.map(i=>i<0?0:nodes[i].offsetWidth),total=widths.reduce((a,b)=>a+b,0)+gap*Math.max(0,widths.length-1);let cursor=total/2;const result={};indices.forEach((i,j)=>{result[i]={x:cursor-widths[j]/2,c:letters[j]};cursor-=widths[j]+gap});return result}const base=layout(word),a=layout(from),b=layout(to),blend=(1-Math.cos(Math.PI*Math.max(0,Math.min(1,(u-.2)/.6))))/2;const unit=Math.min(38,innerWidth*.045),n=nodes.length;
  nodes.forEach((el,i)=>{const c=i-(n-1)/2;let x=0,y=0,r=0;
  if(k===0){x=-c*unit*.6;y=Math.sin(i*1.7)*unit*.65}
  if(k===1){x=Math.sin(i*2.1)*unit;y=Math.cos(i*2.1)*unit*.85;r=(i%2?1:-1)*9}
  if(k===2){x=-c*unit*.42;y=c*unit*.46;r=c*4}
  if(k===3){x=Math.sin(i*1.9)*unit*.6;y=(i%2?1:-1)*unit;r=(i%2?1:-1)*5}
  if(k===4){x=-c*unit*.7;y=Math.cos(i*1.3)*unit*.45}
- el.style.transform=reduced?'none':`translate(${x*amp}px,${y*amp}px) rotate(${r*amp}deg)`;el.style.opacity=String(1-(reduced?0:amp*.25));
+ const ax=a[i]?.x??base[i].x,bx=b[i]?.x??base[i].x,shift=ax+(bx-ax)*blend-base[i].x,visibility=(a[i]?1:0)*(1-blend)+(b[i]?1:0)*blend;el.textContent=reduced?[...word][i]:(blend>.5?(b[i]?.c??[...word][i]):(a[i]?.c??[...word][i]));el.style.transform=reduced?'none':`translate(${shift+x*amp}px,${y*amp}px) rotate(${r*amp}deg)`;el.style.opacity=String(reduced?1:visibility*(1-amp*.25));
  });}requestAnimationFrame(frame)}sync();requestAnimationFrame(frame);
 })();

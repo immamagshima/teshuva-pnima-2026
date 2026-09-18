@@ -171,11 +171,19 @@ const SCENES = [
           "הקשבה",
           "תשובה"
         ],
-        "morphAfter": 150
+        "morphAfter": 150,
+        "letterForms": [
+          "שובה",
+          "שוב",
+          "תשוב",
+          "השב",
+          "שבה",
+          "תשובה"
+        ]
       },
       {
-        "title": "לשוב",
-        "text": "אל עצמי.",
+        "title": "עצמי",
+        "text": "לשוב אליי.",
         "seconds": 240,
         "chat": false,
         "visual": "word",
@@ -188,7 +196,15 @@ const SCENES = [
           "אל עצמי"
         ],
         "voiceAfter": 60,
-        "voiceUntil": 210
+        "voiceUntil": 210,
+        "letterForms": [
+          "עצם",
+          "צמי",
+          "עם",
+          "עמי",
+          "עצ",
+          "עצמי"
+        ]
       }
     ],
     "kind": "plain",
