@@ -66,3 +66,5 @@ body[data-visual=word] .light{background:radial-gradient(ellipse at 22% 35%,#fff
 
 /* On-stage controls are always available in relevant moments. */
 .field-controls{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:18px auto 10px}.field-controls button{font-size:15px;min-height:44px;padding:8px 16px;background:#fff5daaa}.continuous-word{padding-block:44px;margin-block:0 12px!important;overflow:visible}.continuous-word span{animation:none!important;transition:none!important;translate:none!important;will-change:transform}.quiet-mode .field-controls{display:flex} @media(max-width:600px){.field-controls{gap:6px}.field-controls button{font-size:14px;padding:8px 12px}.continuous-word{padding-block:32px}}
+
+body[data-visual=word] main{padding-block:18px}body[data-visual=word] .mode{margin-bottom:12px}body[data-visual=word] .continuous-word{font-size:clamp(80px,11vw,155px);padding-block:28px}body[data-visual=word] .instruction{margin-bottom:12px}body[data-visual=word] .thought-field{height:125px;margin-block:0}body[data-visual=word] .holding{margin-top:16px}body[data-visual=word] .field-controls{margin-top:10px}
