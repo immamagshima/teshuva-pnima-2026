@@ -16,11 +16,6 @@ window.updateQuietMotion=()=>{
  const p=current(),e=Math.max(0,state.total-state.left),id=state.i+':'+state.p;
  if(key!==id){key=id;lastWord='';lastEcho='';panel.replaceChildren();title.removeAttribute('aria-label');title.classList.remove('letter-word')}
  panel.hidden=state.ground||!!(p.voices&&(!p.linePortrait||e>=p.voiceAfter));panel.classList.toggle('has-echo-space',!!(p.voices||p.linePortrait));document.body.classList.toggle('motion-resting',!state.running);
- if(p.morph&&!state.ground){
- const t=Math.max(0,e-p.morphAfter),index=e<p.morphAfter?0:Math.floor(t/32)%p.morph.length,word=p.morph[index];
- if(word!==lastWord){title.replaceChildren();title.classList.add('letter-word');title.setAttribute('aria-label',word);[...word].forEach((c,i)=>{const n=document.createElement('span');n.textContent=c;n.setAttribute('aria-hidden','true');n.style.setProperty('--letter-x',((i%2?1:-1)*(18+i*9))+'px');n.style.setProperty('--letter-y',(i%2?20:-20)+'px');title.append(n)});lastWord=word}
- title.classList.toggle('letters-apart',e>=p.morphAfter&&t%32>26);
- }
  let echo='';if(p.voices&&e>=p.voiceAfter&&e<p.voiceUntil){const t=e-p.voiceAfter;if(t%16<12)echo=p.voices[Math.floor(t/16)%p.voices.length]}
  let art=-1;if(p.linePortrait&&e>=45&&e<145){const t=e-45;if(t%40<30)art=Math.floor(t/40)%drawings.length}
  const next=echo||String(art);if(next!==lastEcho){panel.replaceChildren();if(echo){const n=document.createElement('span');n.textContent=echo;panel.append(n)}else if(art>=0){const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 180 180');const path=document.createElementNS(svg.namespaceURI,'path');path.setAttribute('d',drawings[art]);svg.append(path);panel.append(svg)}lastEcho=next}
@@ -36,14 +31,14 @@ window.updateQuietMotion=()=>{
  const slots=Array.from({length:3},(_,i)=>{const lane=document.createElement('div');lane.className='thought-lane';const button=document.createElement('button');button.type='button';button.className='thought-bubble';const ink=document.createElement('span');button.append(ink);const ring=document.createElement('i');ring.className='thought-ring';ring.setAttribute('aria-hidden','true');lane.append(button,ring);field.append(lane);return {lane,button,ink,ring,id:'',dismissed:false,at:0}});
  let phase='',previousElapsed=0;const prior=window.updateQuietMotion;
  window.updateQuietMotion=()=>{prior?.();const p=current(),e=Math.max(0,state.total-state.left),id=state.i+':'+state.p;
- const words=p.voices||[];const active=!!words.length&&!state.ground&&(!p.linePortrait||e>=p.voiceAfter);
+ const words=p.voices||[];const active=!!words.length&&!state.ground&&(!p.linePortrait||e>=p.voiceAfter||!!window.thoughtsLive);
  field.hidden=!active;document.body.classList.toggle('has-thought-field',active);
  if(phase!==id||e<previousElapsed){phase=id;slots.forEach(s=>{s.id='';s.dismissed=false;s.at=0})}previousElapsed=e;
  if(!active)return;
  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches||document.body.classList.contains('wave-paused');
  const dense=state.i===1&&p.ear===1;const mobile=matchMedia('(max-width:600px)').matches;const count=dense?(mobile?2:3):1;
  field.dataset.density=String(count);
- const start=p.voiceAfter??90,end=p.voiceUntil??p.seconds-45;
+ const start=window.thoughtsLive?.start??p.voiceAfter??90,end=window.thoughtsLive?Infinity:(p.voiceUntil??p.seconds-45);
  slots.forEach((s,i)=>{const time=e-start-i*9,cycle=Math.floor(Math.max(0,time)/42),age=((time%42)+42)%42;
  const visible=i<count&&time>=0&&e<end&&age<29;
  const wordIndex=dense?(cycle*count+i)%words.length:cycle%words.length;const identity=id+':'+i+':'+cycle;
@@ -58,6 +53,47 @@ window.updateQuietMotion=()=>{
  s.button.onclick=()=>{if(!s.dismissed){s.dismissed=true;s.at=Math.max(0,state.total-state.left);s.button.style.opacity='.2';s.ring.style.opacity='.6';if(!state.running){s.at-=3;s.button.style.visibility='hidden';s.ring.style.transform='scale(1.3)'}}};
  });
  };
- const preview=document.createElement('button');preview.className='wide';preview.textContent='הצצה לשדה המחשבות';preview.onclick=()=>{document.getElementById('tools').close();change(1,1);state.left=state.total-112;state.running=true;state.deadline=Date.now()+state.left*1000;paint();save()};document.getElementById('tools').querySelector('.tool-buttons').after(preview);
  window.updateQuietMotion();
+})();
+
+/* Live controls and a continuous, reversible letter choreography. */
+(()=>{
+ const title=document.getElementById('title'),instruction=document.getElementById('instruction');
+ const controls=document.createElement('div');controls.className='field-controls';controls.setAttribute('aria-label','תנועה במרחב');document.getElementById('phaseClock').parentElement.after(controls);
+ const motion=document.createElement('button'),variation=document.createElement('button'),thought=document.createElement('button');
+ motion.id='wordMotionToggle';variation.id='wordVariation';thought.id='thoughtToggle';variation.textContent='תנועה אחרת';controls.append(motion,variation,thought);
+ let key='',paused=false,hold=0,bias=0,word='',anchor=-1;
+ const elapsed=()=>Math.max(0,Math.min(state.total,state.running?state.total-(state.deadline-Date.now())/1000:state.total-state.left));
+ const active=()=>!state.ground&&current().visual==='word'&&!/\s/.test(current().title.trim());
+ function start(){if(!state.running&&state.left>0)toggle()}
+ motion.onclick=()=>{if(!state.running){start();paused=false}else if(paused){bias=hold-elapsed();paused=false}else{hold=elapsed()+bias;paused=true}sync()};
+ variation.onclick=()=>{bias+=40;paused=false;start();sync()};
+ thought.onclick=()=>{if(window.thoughtsLive){window.thoughtsLive=null}else{window.thoughtsLive={start:Math.max(0,state.total-state.left)-8};start()}paint()};
+ const anchors=[
+ ['לקראת יום כיפור, רציתי שנעצור יחד.\nלהקשיב למה שעוד לא הצלחנו לומר.','ביום הזה אני רוצה לפנות מקום\nלמה שנשאר ביני לבין עצמי.','נהיה כאן בשקט.\nהמילים שעל המסך ילוו אותנו.','אולי יעלה אדם. אולי רגע.\nאפשר לתת להם להיות כאן.','אנחנו יחד.\nכל אחת עם מה שחי בה עכשיו.'],
+ ['המיקרופונים סגורים.\nאפשר להניח מילה בצ׳אט, אם נכון לך.','בהתחלה נקשיב למה שסביבנו.','אחר כך נקשיב למה שעולה בתוכנו.','אין צורך למצוא תשובה.\nגם כשלא עולה דבר, יש לך מקום.','השקט נבנה לאט.\nאפשר להתרגל אליו בקצב שלך.'],
+ ['אפשר לנוח, לנוע או לצאת לרגע.','אם קשה לך, אפשר לכתוב לקרן\nבפרטי בצ׳אט של הזום.','אין חובה לסלוח.\nגם מה שעוד כואב יכול להיות כאן.','אפשר להיות כאן בדיוק כפי שאת.','עוד רגע נתחיל להקשיב.']
+ ];
+ function sync(){const id=state.i+':'+state.p;if(key!==id){key=id;paused=false;bias=0;word='';anchor=-1;window.thoughtsLive=null}
+ const yes=active();motion.hidden=variation.hidden=!yes;thought.hidden=!current().voices||state.ground;controls.hidden=!yes&&thought.hidden;
+ motion.textContent=paused?'להמשיך את התנועה':state.running?'להניח למילה לנוח':'להתחיל שהייה ותנועה';motion.setAttribute('aria-pressed',String(!paused&&state.running));thought.textContent=window.thoughtsLive?'להחזיר שקט למסך':'להציף מחשבות';thought.setAttribute('aria-pressed',String(!!window.thoughtsLive));
+ if(state.i===0&&!state.ground){const list=anchors[state.p],i=Math.min(list.length-1,Math.floor(elapsed()/25));instruction.textContent=list[i];if(anchor!==i){anchor=i;instruction.getAnimations().forEach(a=>a.cancel());if(!matchMedia('(prefers-reduced-motion: reduce)').matches)instruction.animate([{opacity:.1},{opacity:1}],{duration:1800,easing:'ease-out'})}}
+ if(yes&&(word!==current().title||!title.classList.contains('letter-word')||!title.children.length)){word=current().title;title.replaceChildren();title.classList.add('letter-word','continuous-word');title.classList.remove('letters-apart');title.setAttribute('aria-label',word);[...word].forEach(c=>{const n=document.createElement('span');n.textContent=c;n.setAttribute('aria-hidden','true');title.append(n)})}
+ if(!yes){title.classList.remove('continuous-word');word=''}
+ }
+ const prior=window.updateQuietMotion;window.updateQuietMotion=()=>{sync();prior();sync()};
+ function frame(){if(active()){
+ const t=paused?hold:elapsed()+bias;const lengths=[24,36,28,44,32],sum=164;let local=((t%sum)+sum)%sum,k=0;while(local>=lengths[k])local-=lengths[k++];const u=local/lengths[k];
+ // Hold whole, open slowly, then gather fully. Every cycle has its own path.
+ const amp=u<.12||u>.92?0:Math.pow(Math.sin(Math.PI*(u-.12)/.8),2);
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches||document.body.classList.contains('wave-paused');
+ const nodes=[...title.children],unit=Math.min(38,innerWidth*.045),n=nodes.length;
+ nodes.forEach((el,i)=>{const c=i-(n-1)/2;let x=0,y=0,r=0;
+ if(k===0){x=-c*unit*.6;y=Math.sin(i*1.7)*unit*.65}
+ if(k===1){x=Math.sin(i*2.1)*unit;y=Math.cos(i*2.1)*unit*.85;r=(i%2?1:-1)*9}
+ if(k===2){x=-c*unit*.42;y=c*unit*.46;r=c*4}
+ if(k===3){x=Math.sin(i*1.9)*unit*.6;y=(i%2?1:-1)*unit;r=(i%2?1:-1)*5}
+ if(k===4){x=-c*unit*.7;y=Math.cos(i*1.3)*unit*.45}
+ el.style.transform=reduced?'none':`translate(${x*amp}px,${y*amp}px) rotate(${r*amp}deg)`;el.style.opacity=String(1-(reduced?0:amp*.25));
+ });}requestAnimationFrame(frame)}sync();requestAnimationFrame(frame);
 })();
