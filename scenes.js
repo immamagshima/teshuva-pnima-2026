@@ -611,7 +611,7 @@ const SCENES = [
       {
         "title": "הסליחות שלנו",
         "text": "",
-        "seconds": 60,
+        "seconds": 150,
         "chat": false,
         "visual": "wall"
       }
@@ -710,13 +710,6 @@ const SCENES = [
   {
     "title": "השיר שלנו",
     "phases": [
-      {
-        "title": "הסליחות שלנו",
-        "text": "",
-        "seconds": 90,
-        "chat": false,
-        "visual": "wall"
-      },
       {
         "title": "מוכנות להקשיב?",
         "text": "שיר שנולד מהמילים שלכן.",
